@@ -1,17 +1,32 @@
-from datetime import datetime, timezone
-from pathlib import Path
 import logging
-
 import pandas as pd
 import yfinance as yf
-from fastapi import FastAPI, HTTPException, Query
 
+from fastapi import FastAPI, HTTPException, Query
+from datetime import datetime, timezone
+from pathlib import Path
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://green-tree-0da954a10.3.azurestaticapps.net",
+    # agrega otros orígenes si tu frontend está en otra URL (por ejemplo, Vercel o Netlify)
+]
 
 app = FastAPI(
-    title="Stock Prices API",
-    version="1.0.0",
+    title="GitHub CSV Folder Info API",
+    description="API que devuelve información de la carpeta 'dataFolder' en GitHub y permite descargar archivos",
+    version="1.0.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # permitir todos los métodos
+    allow_headers=["*"],
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +38,6 @@ TICKERS = {
     "Amazon": "AMZN",
     "NVIDIA": "NVDA",
 }
-
-@app.get("/")
-def read_root():
-    return {"Message":"API funcionando correctamente"}
-
 
 def get_stock_prices(period: str = "4mo") -> list[dict]:
     """
@@ -100,6 +110,9 @@ def get_stock_prices(period: str = "4mo") -> list[dict]:
 
     return rows
 
+@app.get("/")
+def read_root():
+    return {"Message":"API funcionando correctamente"}
 
 @app.get("/stock-prices")
 def download_stock_prices(
