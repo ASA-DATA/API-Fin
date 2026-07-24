@@ -112,7 +112,7 @@ def get_stock_prices(period: str = "4mo") -> list[dict]:
 
 @app.get("/")
 def read_root():
-    return {"Message":"API funcionando correctamente"}
+    return {"Message":"API funcionando correctamente ;)"}
 
 @app.get("/stock-prices")
 def download_stock_prices(
