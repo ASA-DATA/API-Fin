@@ -31,8 +31,22 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Set correct Azure resource group
+        run: |
+          az configure --defaults group=$RESOURCE_GROUP
+
+      - name: Verify Azure resources
+        run: |
+          az account show --query "{Subscription:name,SubscriptionId:id}" --output table
+          az acr show \
+            --name $ACR_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --query "{Name:name,ResourceGroup:resourceGroup,LoginServer:loginServer}" \
+            --output table
+
       - name: Login to Azure Container Registry
-        run: az acr login --name $ACR_NAME
+        run: |
+          az acr login --name $ACR_NAME
 
       - name: Build Docker image
         run: |
