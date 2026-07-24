@@ -15,6 +15,7 @@ env:
   IMAGE_NAME: action-price-analysis-image
   RESOURCE_GROUP: action-price-analysis-rg
   CONTAINER_APP: action-price-analysis-api
+  AZURE_DEFAULTS_GROUP: action-price-analysis-rg
 
 jobs:
   build-and-deploy:
@@ -31,13 +32,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set correct Azure resource group
+      - name: Verify Azure configuration
         run: |
-          az configure --defaults group=$RESOURCE_GROUP
+          echo "AZURE_DEFAULTS_GROUP=$AZURE_DEFAULTS_GROUP"
 
-      - name: Verify Azure resources
-        run: |
-          az account show --query "{Subscription:name,SubscriptionId:id}" --output table
+          az account show \
+            --query "{Subscription:name,SubscriptionId:id}" \
+            --output table
+
           az acr show \
             --name $ACR_NAME \
             --resource-group $RESOURCE_GROUP \
